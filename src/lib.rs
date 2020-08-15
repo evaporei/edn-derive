@@ -16,7 +16,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
         let name = &field.ident;
         let keyword = to_edn_keyword(format!("{}", quote! {#name}));
         quote! {
-            format!("{} {} ", #keyword, self.#name.serialize())
+            format!("{} {}, ", #keyword, self.#name.serialize())
         }
     });
 
@@ -24,7 +24,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
         impl edn_rs::Serialize for #struct_name {
             fn serialize(self) -> String {
                 let mut s = String::new();
-                s.push_str("{");
+                s.push_str("{ ");
                 #(s.push_str(&#it);)*
                 s.push_str("}");
                 s

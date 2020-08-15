@@ -1,7 +1,7 @@
 [package]
 name = "edn-derive"
-version = "0.1.0"
-authors = ["Otavio Pace <otaviopp8@gmail.com>", "Julia Boeira <julia.boeira@nubank.com.br"]
+version = "0.1.1"
+authors = ["Otavio Pace <otaviopp8@gmail.com>", "Julia Boeira <julia.boeira@nubank.com.br>"]
 description = "Edn (De)Serialization derive macros"
 edition = "2018"
 readme = "README.md"
