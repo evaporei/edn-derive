@@ -1,0 +1,17 @@
+[package]
+name = "edn-derive"
+version = "0.1.0"
+authors = ["Otavio Pace <otaviopp8@gmail.com>", "Julia Boeira <julia.boeira@nubank.com.br"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "1.0"
+quote = "1.0"
+proc-macro2 = "1.0"
+
+[dev-dependencies]
+trybuild = { version = "1.0", features = ["diff"] }
