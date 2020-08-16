@@ -1,0 +1,30 @@
+version: 2
+
+jobs:
+  test:
+    docker:
+      - image: rust
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: cargo test --color=always
+
+  lint:
+    docker:
+      - image: rust
+    steps:
+      - checkout
+      - run:
+          name: Install cargo fmt
+          command: rustup component add rustfmt
+      - run:
+          name: Run lint
+          command: cargo fmt -- --check
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - test
+      - lint
