@@ -12,5 +12,6 @@ fn main() {
         name: "joana".to_string(),
         age: 290000,
     };
-    assert_eq!(person.serialize(), "{ :name \"joana\", :age 290000, }");
+    assert_eq!(person.to_string(), "{ :name \"joana\", :age 290000, }");
+    assert_eq!(person.to_edn(), "{ :name \"joana\", :age 290000, }");
 }
