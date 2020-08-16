@@ -7,10 +7,9 @@ Edn derive procedural macros for (De)Serialization.
 ## Example
 
 ```rust
-use edn_derive::Serialize as SerializeEdn;
-use edn_rs::Serialize;
+use edn_derive::Serialize;
 
-#[derive(SerializeEdn)]
+#[derive(Serialize)]
 pub struct Person {
     name: String,
     age: usize,
@@ -21,6 +20,9 @@ fn main() {
         name: "joana".to_string(),
         age: 290000,
     };
-    assert_eq!(person.serialize(), "{ :name \"joana\", :age 290000, }");
+    assert_eq!(
+        edn_rs::to_string(person),
+        "{ :name \"joana\", :age 290000, }"
+    );
 }
 ```
