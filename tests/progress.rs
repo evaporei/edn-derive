@@ -1,5 +1,6 @@
 #[test]
 fn tests() {
     let t = trybuild::TestCases::new();
-    t.pass("tests/simple.rs");
+    t.pass("tests/serialize.rs");
+    t.pass("tests/deserialize.rs");
 }
