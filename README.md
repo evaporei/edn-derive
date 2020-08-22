@@ -4,6 +4,12 @@ Edn derive procedural macros for (De)Serialization.
 
 **This library still is `pre-alpha`**.
 
+## Usage
+
+```toml
+edn-derive = "0.2.0"
+```
+
 ## Example
 
 Serialization
