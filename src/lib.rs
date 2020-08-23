@@ -3,7 +3,6 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
     parse_macro_input, punctuated::Punctuated, token::Comma, Data, DeriveInput, Field, Fields,
-    Ident, Type,
 };
 
 #[proc_macro_derive(Serialize)]
@@ -49,7 +48,7 @@ pub fn derive_deserialize(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl edn_rs::Deserialize for #struct_name {
-            fn deserialize(edn: edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
+            fn deserialize(edn: &edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
                 Ok(Self {
                     #deserialized_fields
                 })
@@ -79,53 +78,16 @@ fn to_edn_keyword(field_name: String) -> String {
     keyword
 }
 
-fn deserialize_for_type(type_ident: &Ident, keyword: &str) -> TokenStream2 {
-    match &type_ident.to_string()[..] {
-        "String" => quote! { to_string() },
-        "usize" | "u8" | "u16" | "u32" | "u64" => {
-            quote! { to_uint().ok_or_else(|| edn_rs::EdnError::Deserialize(format!("couldn't convert `{}` into `uint`", #keyword)))? }
-        }
-        "isize" | "i8" | "i16" | "i32" | "i64" => {
-            quote! { to_int().ok_or_else(|| edn_rs::EdnError::Deserialize(format!("couldn't convert `{}` into `int`", #keyword)))? }
-        }
-        "f32" | "f64" => {
-            quote! { to_float().ok_or_else(|| edn_rs::EdnError::Deserialize(format!("couldn't convert `{}` into `float`", #keyword)))? }
-        }
-        "bool" => {
-            quote! { to_bool().ok_or_else(|| edn_rs::EdnError::Deserialize(format!("couldn't convert `{}` into `bool`", #keyword)))? }
-        }
-        "char" => {
-            quote! { to_char().ok_or_else(|| edn_rs::EdnError::Deserialize(format!("couldn't convert `{}` into `char`", #keyword)))? }
-        }
-        _ => unimplemented!(),
-    }
-}
-
 fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> TokenStream2 {
     fields
         .iter()
         .map(|f| {
             let name = &f.ident;
-            let ty = &f.ty;
             let keyword = to_edn_keyword(format!("{}", quote! {#name}));
 
-            let type_ident = get_type_ident(ty).unwrap();
-
-            let deserialization = deserialize_for_type(type_ident, &keyword);
-
             quote! {
-                #name: edn[#keyword].#deserialization,
+                #name: edn_rs::Deserialize::deserialize(&edn[#keyword])?,
             }
         })
         .collect()
-}
-
-fn get_type_ident(ty: &Type) -> Option<&Ident> {
-    if let Type::Path(typepath) = ty {
-        if let Some(segment) = typepath.path.segments.last() {
-            return Some(&segment.ident);
-        }
-    }
-
-    None
 }
