@@ -71,11 +71,22 @@ fn get_struct_fields(data: &Data) -> &Punctuated<Field, Comma> {
 
 fn to_edn_keyword(field_name: String) -> String {
     let mut keyword = field_name
-        .replace("_", "-")
+        .replace("___", "/")
         .replace("__", ".")
-        .replace("___", "/");
+        .replace("_", "-");
     keyword.insert(0, ':');
     keyword
+}
+
+#[test]
+fn test_to_edn_keyword() {
+    assert_eq!(to_edn_keyword("name".to_string()), ":name");
+    assert_eq!(to_edn_keyword("crux__db___id".to_string()), ":crux.db/id");
+    assert_eq!(
+        to_edn_keyword("account___amount".to_string()),
+        ":account/amount"
+    );
+    assert_eq!(to_edn_keyword("tx___tx_time".to_string()), ":tx/tx-time");
 }
 
 fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> TokenStream2 {
