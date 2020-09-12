@@ -18,7 +18,7 @@ proc-macro = true
 syn = "1.0"
 quote = "1.0"
 proc-macro2 = "1.0"
-edn-rs = "0.13.5"
+edn-rs = "0.14.0"
 
 [dev-dependencies]
 trybuild = { version = "1.0", features = ["diff"] }
