@@ -7,7 +7,7 @@ Edn derive procedural macros for (De)Serialization.
 ## Usage
 
 ```toml
-edn-derive = "0.3.2"
+edn-derive = "0.3.3"
 ```
 
 ## Example
