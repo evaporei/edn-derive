@@ -67,7 +67,7 @@ pub fn derive_serialize(input: TokenStream) -> TokenStream {
 pub fn derive_deserialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let struct_name = input.ident;
+    let type_name = input.ident;
 
     let expanded = match input.data {
         Data::Struct(ref data_struct) => {
@@ -76,11 +76,43 @@ pub fn derive_deserialize(input: TokenStream) -> TokenStream {
             let deserialized_fields = generate_field_deserialization(&struct_fields);
 
             quote! {
-                impl edn_rs::Deserialize for #struct_name {
+                impl edn_rs::Deserialize for #type_name {
                     fn deserialize(edn: &edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
                         Ok(Self {
                             #deserialized_fields
                         })
+                    }
+                }
+            }
+        }
+        Data::Enum(ref data_enum) => {
+            let enum_variants = get_enum_variants(data_enum);
+
+            let deserialized_variants = generate_variant_deserialization(&enum_variants);
+
+            quote! {
+                impl edn_rs::Deserialize for #type_name {
+                    fn deserialize(edn: &edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
+                        match edn {
+                            edn_rs::Edn::Key(k) => match &k[..] {
+                                #deserialized_variants
+                                _ => Err(edn_rs::EdnError::Deserialize(format!(
+                                        "couldn't convert {} keyword into enum",
+                                        k
+                                ))),
+                            },
+                            edn_rs::Edn::Str(s) => match &s[..] {
+                                #deserialized_variants
+                                _ => Err(edn_rs::EdnError::Deserialize(format!(
+                                        "couldn't convert {} string into enum",
+                                        s
+                                ))),
+                            },
+                            _ => Err(edn_rs::EdnError::Deserialize(format!(
+                                        "couldn't convert {} into enum",
+                                        edn
+                            ))),
+                        }
                     }
                 }
             }
@@ -154,6 +186,20 @@ fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> TokenStr
 
             quote! {
                 #name: edn_rs::Deserialize::deserialize(&edn[#keyword])?,
+            }
+        })
+        .collect()
+}
+
+fn generate_variant_deserialization(variants: &Punctuated<Variant, Comma>) -> TokenStream2 {
+    variants
+        .iter()
+        .map(|v| {
+            let name = &v.ident;
+            let keyword = to_edn_keyword(format!("{}", quote! {#name}));
+
+            quote! {
+                #keyword => Ok(Self::#name),
             }
         })
         .collect()
