@@ -3,33 +3,11 @@ use crate::enums::get_enum_variants;
 use crate::structs::get_struct_fields;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, Ident};
+use syn::{Data, DataStruct, Ident};
 
 pub fn expand(type_name: &Ident, data: &Data) -> TokenStream2 {
     match data {
-        Data::Struct(ref data_struct) => {
-            let struct_fields = get_struct_fields(data_struct);
-
-            let it = struct_fields.iter().map(|field| {
-                let name = &field.ident;
-                let keyword = to_edn_keyword(format!("{}", quote! {#name}));
-                quote! {
-                    format!("{} {}, ", #keyword, self.#name.serialize())
-                }
-            });
-
-            quote! {
-                impl edn_rs::Serialize for #type_name {
-                    fn serialize(self) -> String {
-                        let mut s = String::new();
-                        s.push_str("{ ");
-                        #(s.push_str(&#it);)*
-                        s.push_str("}");
-                        s
-                    }
-                }
-            }
-        }
+        Data::Struct(ref data_struct) => expand_struct(type_name, data_struct),
         Data::Enum(ref data_enum) => {
             let enum_variants = get_enum_variants(data_enum);
 
@@ -53,5 +31,29 @@ pub fn expand(type_name: &Ident, data: &Data) -> TokenStream2 {
             }
         }
         _ => unimplemented!(),
+    }
+}
+
+fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 {
+    let struct_fields = get_struct_fields(data_struct);
+
+    let it = struct_fields.iter().map(|field| {
+        let name = &field.ident;
+        let keyword = to_edn_keyword(format!("{}", quote! {#name}));
+        quote! {
+            format!("{} {}, ", #keyword, self.#name.serialize())
+        }
+    });
+
+    quote! {
+        impl edn_rs::Serialize for #struct_name {
+            fn serialize(self) -> String {
+                let mut s = String::new();
+                s.push_str("{ ");
+                #(s.push_str(&#it);)*
+                s.push_str("}");
+                s
+            }
+        }
     }
 }
