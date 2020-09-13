@@ -2,35 +2,41 @@ use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
-    parse_macro_input, punctuated::Punctuated, token::Comma, Data, DeriveInput, Field, Fields,
+    parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataStruct,
+    DeriveInput, Field, Fields,
 };
 
 #[proc_macro_derive(Serialize)]
 pub fn derive_serialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let struct_name = input.ident;
+    let type_name = input.ident;
 
-    let struct_fields = get_struct_fields(&input.data);
+    let expanded = match input.data {
+        Data::Struct(ref data_struct) => {
+            let struct_fields = get_struct_fields(data_struct);
 
-    let it = struct_fields.iter().map(|field| {
-        let name = &field.ident;
-        let keyword = to_edn_keyword(format!("{}", quote! {#name}));
-        quote! {
-            format!("{} {}, ", #keyword, self.#name.serialize())
-        }
-    });
+            let it = struct_fields.iter().map(|field| {
+                let name = &field.ident;
+                let keyword = to_edn_keyword(format!("{}", quote! {#name}));
+                quote! {
+                    format!("{} {}, ", #keyword, self.#name.serialize())
+                }
+            });
 
-    let expanded = quote! {
-        impl edn_rs::Serialize for #struct_name {
-            fn serialize(self) -> String {
-                let mut s = String::new();
-                s.push_str("{ ");
-                #(s.push_str(&#it);)*
-                s.push_str("}");
-                s
+            quote! {
+                impl edn_rs::Serialize for #type_name {
+                    fn serialize(self) -> String {
+                        let mut s = String::new();
+                        s.push_str("{ ");
+                        #(s.push_str(&#it);)*
+                        s.push_str("}");
+                        s
+                    }
+                }
             }
         }
+        _ => unimplemented!(),
     };
 
     expanded.into()
@@ -42,29 +48,31 @@ pub fn derive_deserialize(input: TokenStream) -> TokenStream {
 
     let struct_name = input.ident;
 
-    let struct_fields = get_struct_fields(&input.data);
+    let expanded = match input.data {
+        Data::Struct(ref data_struct) => {
+            let struct_fields = get_struct_fields(data_struct);
 
-    let deserialized_fields = generate_field_deserialization(&struct_fields);
+            let deserialized_fields = generate_field_deserialization(&struct_fields);
 
-    let expanded = quote! {
-        impl edn_rs::Deserialize for #struct_name {
-            fn deserialize(edn: &edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
-                Ok(Self {
-                    #deserialized_fields
-                })
+            quote! {
+                impl edn_rs::Deserialize for #struct_name {
+                    fn deserialize(edn: &edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
+                        Ok(Self {
+                            #deserialized_fields
+                        })
+                    }
+                }
             }
         }
+        _ => unimplemented!(),
     };
 
     expanded.into()
 }
 
-fn get_struct_fields(data: &Data) -> &Punctuated<Field, Comma> {
-    match *data {
-        Data::Struct(ref data) => match data.fields {
-            Fields::Named(ref fields) => &fields.named,
-            _ => unimplemented!(),
-        },
+fn get_struct_fields(data_struct: &DataStruct) -> &Punctuated<Field, Comma> {
+    match data_struct.fields {
+        Fields::Named(ref fields) => &fields.named,
         _ => unimplemented!(),
     }
 }
