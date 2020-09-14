@@ -22,6 +22,6 @@ fn main() {
     };
     assert_eq!(
         edn_rs::to_string(person),
-        "{ :name \"joana\", :age 290000, :kind :chill, }"
+        "{ :name \"joana\", :age 290000, :kind :kind/chill, }"
     );
 }

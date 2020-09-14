@@ -18,7 +18,7 @@ pub struct Person {
 }
 
 fn main() -> Result<(), EdnError> {
-    let edn_person = "{ :name \"joana\", :age 290000, :kind :pirate, }";
+    let edn_person = "{ :name \"joana\", :age 290000, :kind :kind/pirate, }";
 
     let person: Person = edn_rs::from_str(edn_person)?;
 

@@ -3,7 +3,7 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
     parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct,
-    DeriveInput, Field, Fields, Variant,
+    DeriveInput, Field, Fields, Ident, Variant,
 };
 
 #[proc_macro_derive(Serialize)]
@@ -41,7 +41,8 @@ pub fn derive_serialize(input: TokenStream) -> TokenStream {
 
             let it = enum_variants.iter().map(|variant| {
                 let name = &variant.ident;
-                let keyword = to_edn_keyword(format!("{}", quote! {#name}));
+                let keyword =
+                    to_edn_keyword(format!("{}___{}", quote! {#type_name}, quote! {#name}));
                 quote! {
                     Self::#name => #keyword.to_string(),
                 }
@@ -88,7 +89,8 @@ pub fn derive_deserialize(input: TokenStream) -> TokenStream {
         Data::Enum(ref data_enum) => {
             let enum_variants = get_enum_variants(data_enum);
 
-            let deserialized_variants = generate_variant_deserialization(&enum_variants);
+            let deserialized_variants =
+                generate_variant_deserialization(&type_name, &enum_variants);
 
             quote! {
                 impl edn_rs::Deserialize for #type_name {
@@ -191,12 +193,15 @@ fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> TokenStr
         .collect()
 }
 
-fn generate_variant_deserialization(variants: &Punctuated<Variant, Comma>) -> TokenStream2 {
+fn generate_variant_deserialization(
+    enum_name: &Ident,
+    variants: &Punctuated<Variant, Comma>,
+) -> TokenStream2 {
     variants
         .iter()
         .map(|v| {
             let name = &v.ident;
-            let keyword = to_edn_keyword(format!("{}", quote! {#name}));
+            let keyword = to_edn_keyword(format!("{}___{}", quote! {#enum_name}, quote! {#name}));
 
             quote! {
                 #keyword => Ok(Self::#name),
