@@ -41,8 +41,7 @@ pub fn derive_serialize(input: TokenStream) -> TokenStream {
 
             let it = enum_variants.iter().map(|variant| {
                 let name = &variant.ident;
-                let keyword =
-                    to_edn_keyword(format!("{}___{}", quote! {#type_name}, quote! {#name}));
+                let keyword = to_edn_keyword(format!("{}/{}", quote! {#type_name}, quote! {#name}));
                 quote! {
                     Self::#name => #keyword.to_string(),
                 }
@@ -201,7 +200,7 @@ fn generate_variant_deserialization(
         .iter()
         .map(|v| {
             let name = &v.ident;
-            let keyword = to_edn_keyword(format!("{}___{}", quote! {#enum_name}, quote! {#name}));
+            let keyword = to_edn_keyword(format!("{}/{}", quote! {#enum_name}, quote! {#name}));
 
             quote! {
                 #keyword => Ok(Self::#name),
