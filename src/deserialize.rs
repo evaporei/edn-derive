@@ -19,8 +19,8 @@ fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 
 
     quote! {
         impl edn_rs::Deserialize for #struct_name {
-            fn deserialize(edn: &edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
-                Ok(Self {
+            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+                std::result::Result::Ok(Self {
                     #deserialized_fields
                 })
             }
@@ -35,23 +35,23 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
 
     quote! {
         impl edn_rs::Deserialize for #enum_name {
-            fn deserialize(edn: &edn_rs::Edn) -> Result<Self, edn_rs::EdnError> {
+            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
                 match edn {
                     edn_rs::Edn::Key(k) => match &k[..] {
                         #deserialized_variants
-                        _ => Err(edn_rs::EdnError::Deserialize(format!(
+                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
                                 "couldn't convert {} keyword into enum",
                                 k
                         ))),
                     },
                     edn_rs::Edn::Str(s) => match &s[..] {
                         #deserialized_variants
-                        _ => Err(edn_rs::EdnError::Deserialize(format!(
+                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
                                 "couldn't convert {} string into enum",
                                 s
                         ))),
                     },
-                    _ => Err(edn_rs::EdnError::Deserialize(format!(
+                    _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
                                 "couldn't convert {} into enum",
                                 edn
                     ))),
