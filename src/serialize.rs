@@ -42,7 +42,7 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
 
     let it = enum_variants.iter().map(|variant| {
         let name = &variant.ident;
-        let keyword = to_edn_keyword(format!("{}___{}", quote! {#enum_name}, quote! {#name}));
+        let keyword = to_edn_keyword(format!("{}/{}", quote! {#enum_name}, quote! {#name}));
         quote! {
             Self::#name => #keyword.to_string(),
         }
