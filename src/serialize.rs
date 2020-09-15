@@ -26,8 +26,8 @@ fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 
 
     quote! {
         impl edn_rs::Serialize for #struct_name {
-            fn serialize(self) -> String {
-                let mut s = String::new();
+            fn serialize(self) -> std::string::String {
+                let mut s = std::string::String::new();
                 s.push_str("{ ");
                 #(s.push_str(&#it);)*
                 s.push_str("}");
@@ -50,7 +50,7 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
 
     quote! {
         impl edn_rs::Serialize for #enum_name {
-            fn serialize(self) -> String {
+            fn serialize(self) -> std::string::String {
                 match self {
                     #(#it)*
                 }

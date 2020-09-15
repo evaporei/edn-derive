@@ -18,7 +18,7 @@ pub fn generate_variant_deserialization(
             let keyword = to_edn_keyword(format!("{}/{}", quote! {#enum_name}, quote! {#name}));
 
             quote! {
-                #keyword => Ok(Self::#name),
+                #keyword => std::result::Result::Ok(Self::#name),
             }
         })
         .collect()
