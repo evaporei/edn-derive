@@ -40,3 +40,26 @@ fn test_field_to_keyword_uppercase() {
     );
     assert_eq!(field_to_keyword("TX___TX_TIME".to_string()), ":tx/tx-time");
 }
+
+fn camel_to_kebab(s: &str) -> String {
+    s.chars()
+        .enumerate()
+        .fold(String::new(), |mut kebab, (i, c)| {
+            if c.is_uppercase() {
+                if i != 0 {
+                    kebab.push('-');
+                }
+                kebab.push_str(&c.to_lowercase().collect::<String>());
+            } else {
+                kebab.push(c);
+            }
+
+            kebab
+        })
+}
+
+#[test]
+fn test_camel_to_kebab() {
+    assert_eq!(camel_to_kebab("CoolText"), "cool-text");
+    assert_eq!(camel_to_kebab("Nice"), "nice");
+}
