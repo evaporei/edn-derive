@@ -1,4 +1,4 @@
-use crate::edn::to_edn_keyword;
+use crate::edn;
 use crate::enums::get_enum_variants;
 use crate::structs::get_struct_fields;
 use proc_macro2::TokenStream as TokenStream2;
@@ -18,7 +18,7 @@ fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 
 
     let it = struct_fields.iter().map(|field| {
         let name = &field.ident;
-        let keyword = to_edn_keyword(format!("{}", quote! {#name}));
+        let keyword = edn::field_to_keyword(format!("{}", quote! {#name}));
         quote! {
             format!("{} {}, ", #keyword, self.#name.serialize())
         }
@@ -42,7 +42,10 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
 
     let it = enum_variants.iter().map(|variant| {
         let name = &variant.ident;
-        let keyword = to_edn_keyword(format!("{}/{}", quote! {#enum_name}, quote! {#name}));
+        let keyword = edn::enum_to_keyword(
+            &quote! {#enum_name}.to_string(),
+            &quote! {#name}.to_string(),
+        );
         quote! {
             Self::#name => #keyword.to_string(),
         }

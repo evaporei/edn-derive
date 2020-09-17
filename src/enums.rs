@@ -1,4 +1,4 @@
-use crate::edn::to_edn_keyword;
+use crate::edn;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{punctuated::Punctuated, token::Comma, DataEnum, Ident, Variant};
@@ -15,7 +15,10 @@ pub fn generate_variant_deserialization(
         .iter()
         .map(|v| {
             let name = &v.ident;
-            let keyword = to_edn_keyword(format!("{}/{}", quote! {#enum_name}, quote! {#name}));
+            let keyword = edn::enum_to_keyword(
+                &quote! {#enum_name}.to_string(),
+                &quote! {#name}.to_string(),
+            );
 
             quote! {
                 #keyword => std::result::Result::Ok(Self::#name),

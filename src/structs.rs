@@ -1,4 +1,4 @@
-use crate::edn::to_edn_keyword;
+use crate::edn;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{punctuated::Punctuated, token::Comma, DataStruct, Field, Fields};
@@ -15,7 +15,7 @@ pub fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> Toke
         .iter()
         .map(|f| {
             let name = &f.ident;
-            let keyword = to_edn_keyword(format!("{}", quote! {#name}));
+            let keyword = edn::field_to_keyword(format!("{}", quote! {#name}));
 
             quote! {
                 #name: edn_rs::from_edn(&edn[#keyword])?,
