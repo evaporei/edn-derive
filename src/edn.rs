@@ -63,3 +63,19 @@ fn test_camel_to_kebab() {
     assert_eq!(camel_to_kebab("CoolText"), "cool-text");
     assert_eq!(camel_to_kebab("Nice"), "nice");
 }
+
+pub fn enum_to_keyword(enum_name: &str, variant_name: &str) -> String {
+    let mut keyword = String::from(':');
+    keyword.push_str(&camel_to_kebab(enum_name));
+    keyword.push('/');
+    keyword.push_str(&camel_to_kebab(variant_name));
+    keyword
+}
+
+#[test]
+fn test_enum_to_keyword() {
+    assert_eq!(
+        enum_to_keyword("EnumName", "EnumVariant"),
+        ":enum-name/enum-variant"
+    );
+}
