@@ -15,8 +15,10 @@ pub fn generate_variant_deserialization(
         .iter()
         .map(|v| {
             let name = &v.ident;
-            let keyword =
-                edn::field_to_keyword(format!("{}/{}", quote! {#enum_name}, quote! {#name}));
+            let keyword = edn::enum_to_keyword(
+                &quote! {#enum_name}.to_string(),
+                &quote! {#name}.to_string(),
+            );
 
             quote! {
                 #keyword => std::result::Result::Ok(Self::#name),

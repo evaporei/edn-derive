@@ -4,4 +4,5 @@ fn tests() {
     t.pass("tests/serialize.rs");
     t.pass("tests/deserialize.rs");
     t.pass("tests/both_ways.rs");
+    t.pass("tests/complex.rs");
 }
