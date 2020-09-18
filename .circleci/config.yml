@@ -22,9 +22,22 @@ jobs:
           name: Run lint
           command: cargo fmt -- --check
 
+  clippy:
+    docker:
+      - image: rust
+    steps:
+      - checkout
+      - run:
+          name: Install cargo clippy
+          command: rustup component add clippy
+      - run:
+          name: Run Clippy
+          command: cargo clippy -- -W clippy::pedantic
+
 workflows:
   version: 2
   build_and_test:
     jobs:
       - test
       - lint
+      - clippy

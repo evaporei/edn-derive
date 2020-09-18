@@ -18,7 +18,7 @@ fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 
 
     let it = struct_fields.iter().map(|field| {
         let name = &field.ident;
-        let keyword = edn::field_to_keyword(format!("{}", quote! {#name}));
+        let keyword = edn::field_to_keyword(&format!("{}", quote! {#name}));
         quote! {
             format!("{} {}, ", #keyword, self.#name.serialize())
         }
