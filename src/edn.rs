@@ -1,11 +1,28 @@
 pub fn field_to_keyword(field_name: &str) -> String {
-    let mut keyword = field_name
-        .to_lowercase()
+    let mut keyword = String::from(':');
+    let inner = field_name
         .replace("___", "/")
         .replace("__", ".")
         .replace("_", "-");
-    keyword.insert(0, ':');
-    keyword
+    keyword.push_str(&inner);
+    keyword.to_lowercase()
+}
+
+fn camel_to_kebab(s: &str) -> String {
+    s.chars()
+        .enumerate()
+        .fold(String::new(), |mut kebab, (i, c)| {
+            if c.is_uppercase() {
+                if i != 0 {
+                    kebab.push('-');
+                }
+                kebab.push_str(&c.to_lowercase().collect::<String>());
+            } else {
+                kebab.push(c);
+            }
+
+            kebab
+        })
 }
 
 #[test]
@@ -30,23 +47,6 @@ fn test_field_to_keyword_uppercase() {
     assert_eq!(field_to_keyword("CRUX__DB___ID"), ":crux.db/id");
     assert_eq!(field_to_keyword("ACCOUNT___AMOUNT"), ":account/amount");
     assert_eq!(field_to_keyword("TX___TX_TIME"), ":tx/tx-time");
-}
-
-fn camel_to_kebab(s: &str) -> String {
-    s.chars()
-        .enumerate()
-        .fold(String::new(), |mut kebab, (i, c)| {
-            if c.is_uppercase() {
-                if i != 0 {
-                    kebab.push('-');
-                }
-                kebab.push_str(&c.to_lowercase().collect::<String>());
-            } else {
-                kebab.push(c);
-            }
-
-            kebab
-        })
 }
 
 #[test]

@@ -15,7 +15,7 @@ pub fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> Toke
         .iter()
         .map(|f| {
             let name = &f.ident;
-            let keyword = edn::field_to_keyword(&format!("{}", quote! {#name}));
+            let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
 
             quote! {
                 #name: edn_rs::from_edn(&edn[#keyword])?,
