@@ -1,4 +1,4 @@
-pub fn field_to_keyword(field_name: String) -> String {
+pub fn field_to_keyword(field_name: &str) -> String {
     let mut keyword = field_name
         .to_lowercase()
         .replace("___", "/")
@@ -10,35 +10,26 @@ pub fn field_to_keyword(field_name: String) -> String {
 
 #[test]
 fn test_field_to_keyword_lowercase() {
-    assert_eq!(field_to_keyword("name".to_string()), ":name");
-    assert_eq!(field_to_keyword("crux__db___id".to_string()), ":crux.db/id");
-    assert_eq!(
-        field_to_keyword("account___amount".to_string()),
-        ":account/amount"
-    );
-    assert_eq!(field_to_keyword("tx___tx_time".to_string()), ":tx/tx-time");
+    assert_eq!(field_to_keyword("name"), ":name");
+    assert_eq!(field_to_keyword("crux__db___id"), ":crux.db/id");
+    assert_eq!(field_to_keyword("account___amount"), ":account/amount");
+    assert_eq!(field_to_keyword("tx___tx_time"), ":tx/tx-time");
 }
 
 #[test]
 fn test_field_to_keyword_mixedcase() {
-    assert_eq!(field_to_keyword("Name".to_string()), ":name");
-    assert_eq!(field_to_keyword("Crux__dB___id".to_string()), ":crux.db/id");
-    assert_eq!(
-        field_to_keyword("acCount___amouNt".to_string()),
-        ":account/amount"
-    );
-    assert_eq!(field_to_keyword("tX___tx_timE".to_string()), ":tx/tx-time");
+    assert_eq!(field_to_keyword("Name"), ":name");
+    assert_eq!(field_to_keyword("Crux__dB___id"), ":crux.db/id");
+    assert_eq!(field_to_keyword("acCount___amouNt"), ":account/amount");
+    assert_eq!(field_to_keyword("tX___tx_timE"), ":tx/tx-time");
 }
 
 #[test]
 fn test_field_to_keyword_uppercase() {
-    assert_eq!(field_to_keyword("NAME".to_string()), ":name");
-    assert_eq!(field_to_keyword("CRUX__DB___ID".to_string()), ":crux.db/id");
-    assert_eq!(
-        field_to_keyword("ACCOUNT___AMOUNT".to_string()),
-        ":account/amount"
-    );
-    assert_eq!(field_to_keyword("TX___TX_TIME".to_string()), ":tx/tx-time");
+    assert_eq!(field_to_keyword("NAME"), ":name");
+    assert_eq!(field_to_keyword("CRUX__DB___ID"), ":crux.db/id");
+    assert_eq!(field_to_keyword("ACCOUNT___AMOUNT"), ":account/amount");
+    assert_eq!(field_to_keyword("TX___TX_TIME"), ":tx/tx-time");
 }
 
 fn camel_to_kebab(s: &str) -> String {
