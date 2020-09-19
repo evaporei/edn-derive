@@ -42,7 +42,7 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
                         _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
                                 "couldn't convert {} keyword into enum",
                                 k
-                        ))),
+                        )))
                     },
                     edn_rs::Edn::Str(s) => match &s[..] {
                         #deserialized_variants
