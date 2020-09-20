@@ -1,4 +1,4 @@
-error: `union` types aren't supported
+error: edn-derive does not support derive for unions
  --> $DIR/union_error_serialize.rs:4:1
   |
 4 | union BadType {

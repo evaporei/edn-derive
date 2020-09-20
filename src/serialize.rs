@@ -11,7 +11,7 @@ pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
         Data::Enum(ref data_enum) => Ok(expand_enum(type_name, data_enum)),
         Data::Union(ref data_union) => Err(Error::new(
             data_union.union_token.span,
-            "`union` types aren't supported",
+            "edn-derive does not support derive for unions",
         )),
     }
 }
