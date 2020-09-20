@@ -1,0 +1,5 @@
+error: `union` types aren't supported
+ --> $DIR/union_error_serialize.rs:4:1
+  |
+4 | union BadType {
+  | ^^^^^
