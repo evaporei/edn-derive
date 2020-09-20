@@ -8,7 +8,10 @@ pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
     match data {
         Data::Struct(ref data_struct) => Ok(expand_struct(type_name, data_struct)),
         Data::Enum(ref data_enum) => Ok(expand_enum(type_name, data_enum)),
-        _ => unimplemented!(),
+        Data::Union(ref data_union) => Err(Error::new(
+            data_union.union_token.span,
+            "`union` types aren't supported",
+        )),
     }
 }
 
