@@ -2,12 +2,12 @@ use crate::enums::{generate_variant_deserialization, get_enum_variants};
 use crate::structs::{generate_field_deserialization, get_struct_fields};
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, DataEnum, DataStruct, Ident};
+use syn::{Data, DataEnum, DataStruct, Error, Ident};
 
-pub fn expand(type_name: &Ident, data: &Data) -> TokenStream2 {
+pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
     match data {
-        Data::Struct(ref data_struct) => expand_struct(type_name, data_struct),
-        Data::Enum(ref data_enum) => expand_enum(type_name, data_enum),
+        Data::Struct(ref data_struct) => Ok(expand_struct(type_name, data_struct)),
+        Data::Enum(ref data_enum) => Ok(expand_enum(type_name, data_enum)),
         _ => unimplemented!(),
     }
 }
