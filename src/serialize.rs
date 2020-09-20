@@ -3,13 +3,16 @@ use crate::enums::get_enum_variants;
 use crate::structs::get_struct_fields;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, DataEnum, DataStruct, Ident};
+use syn::{Data, DataEnum, DataStruct, Error, Ident};
 
-pub fn expand(type_name: &Ident, data: &Data) -> TokenStream2 {
+pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
     match data {
-        Data::Struct(ref data_struct) => expand_struct(type_name, data_struct),
-        Data::Enum(ref data_enum) => expand_enum(type_name, data_enum),
-        _ => unimplemented!(),
+        Data::Struct(ref data_struct) => Ok(expand_struct(type_name, data_struct)),
+        Data::Enum(ref data_enum) => Ok(expand_enum(type_name, data_enum)),
+        Data::Union(ref data_union) => Err(Error::new(
+            data_union.union_token.span,
+            "edn-derive does not support derive for unions",
+        )),
     }
 }
 
