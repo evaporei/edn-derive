@@ -7,4 +7,5 @@ fn tests() {
     t.pass("tests/complex.rs");
     t.compile_fail("tests/union_error_serialize.rs");
     t.compile_fail("tests/union_error_deserialize.rs");
+    t.pass("tests/unit_struct.rs");
 }

@@ -17,26 +17,37 @@ pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
 }
 
 fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 {
-    let struct_fields = get_struct_fields(data_struct);
+    let maybe_fields = get_struct_fields(data_struct);
 
-    let it = struct_fields.iter().map(|field| {
-        let name = &field.ident;
-        let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
-        quote! {
-            format!("{} {}, ", #keyword, self.#name.serialize())
-        }
-    });
+    match maybe_fields {
+        Some(fields) => {
+            let it = fields.iter().map(|field| {
+                let name = &field.ident;
+                let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
+                quote! {
+                    format!("{} {}, ", #keyword, self.#name.serialize())
+                }
+            });
 
-    quote! {
-        impl edn_rs::Serialize for #struct_name {
-            fn serialize(self) -> std::string::String {
-                let mut s = std::string::String::new();
-                s.push_str("{ ");
-                #(s.push_str(&#it);)*
-                s.push_str("}");
-                s
+            quote! {
+                impl edn_rs::Serialize for #struct_name {
+                    fn serialize(self) -> std::string::String {
+                        let mut s = std::string::String::new();
+                        s.push_str("{ ");
+                        #(s.push_str(&#it);)*
+                        s.push_str("}");
+                        s
+                    }
+                }
             }
         }
+        None => quote! {
+            impl edn_rs::Serialize for #struct_name {
+                fn serialize(self) -> std::string::String {
+                    String::from("nil")
+                }
+            }
+        },
     }
 }
 
