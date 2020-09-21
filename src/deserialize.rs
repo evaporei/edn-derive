@@ -16,18 +16,34 @@ pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
 }
 
 fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 {
-    let struct_fields = get_struct_fields(data_struct);
+    let maybe_fields = get_struct_fields(data_struct);
 
-    let deserialized_fields = generate_field_deserialization(&struct_fields);
-
-    quote! {
-        impl edn_rs::Deserialize for #struct_name {
-            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
-                std::result::Result::Ok(Self {
-                    #deserialized_fields
-                })
+    match maybe_fields {
+        Some(fields) => {
+            let deserialized_fields = generate_field_deserialization(&fields);
+            quote! {
+                impl edn_rs::Deserialize for #struct_name {
+                    fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+                        std::result::Result::Ok(Self {
+                            #deserialized_fields
+                        })
+                    }
+                }
             }
         }
+        None => quote! {
+            impl edn_rs::Deserialize for #struct_name {
+                fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+                    match edn {
+                        edn_rs::Edn::Nil => std::result::Result::Ok(Self),
+                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
+                                "couldn't convert {} into an unit struct",
+                                edn
+                        )))
+                    }
+                }
+            }
+        },
     }
 }
 
