@@ -1,8 +1,10 @@
 use crate::enums::{generate_variant_deserialization, get_enum_variants};
-use crate::structs::{generate_field_deserialization, get_struct_fields};
+use crate::structs::generate_field_deserialization;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, DataEnum, DataStruct, Error, Ident};
+use syn::{
+    punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct, Error, Field, Fields, Ident,
+};
 
 pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
     match data {
@@ -16,34 +18,39 @@ pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
 }
 
 fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 {
-    let maybe_fields = get_struct_fields(data_struct);
+    match data_struct.fields {
+        Fields::Named(ref fields) => expand_named_struct(struct_name, &fields.named),
+        Fields::Unit => expand_unit_struct(struct_name),
+        _ => unimplemented!(),
+    }
+}
 
-    match maybe_fields {
-        Some(fields) => {
-            let deserialized_fields = generate_field_deserialization(&fields);
-            quote! {
-                impl edn_rs::Deserialize for #struct_name {
-                    fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
-                        std::result::Result::Ok(Self {
-                            #deserialized_fields
-                        })
-                    }
+fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> TokenStream2 {
+    let deserialized_fields = generate_field_deserialization(&fields);
+    quote! {
+        impl edn_rs::Deserialize for #struct_name {
+            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+                std::result::Result::Ok(Self {
+                    #deserialized_fields
+                })
+            }
+        }
+    }
+}
+
+fn expand_unit_struct(struct_name: &Ident) -> TokenStream2 {
+    quote! {
+        impl edn_rs::Deserialize for #struct_name {
+            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+                match edn {
+                    edn_rs::Edn::Nil => std::result::Result::Ok(Self),
+                    _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
+                                "couldn't convert {} into an unit struct",
+                                edn
+                    )))
                 }
             }
         }
-        None => quote! {
-            impl edn_rs::Deserialize for #struct_name {
-                fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
-                    match edn {
-                        edn_rs::Edn::Nil => std::result::Result::Ok(Self),
-                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
-                                "couldn't convert {} into an unit struct",
-                                edn
-                        )))
-                    }
-                }
-            }
-        },
     }
 }
 
