@@ -1,5 +1,5 @@
 use crate::enums::{generate_variant_deserialization, get_enum_variants};
-use crate::structs::generate_field_deserialization;
+use crate::structs;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{
@@ -20,13 +20,26 @@ pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
 fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 {
     match data_struct.fields {
         Fields::Named(ref fields) => expand_named_struct(struct_name, &fields.named),
+        Fields::Unnamed(ref fields) => expand_unnamed_struct(struct_name, &fields.unnamed),
         Fields::Unit => expand_unit_struct(struct_name),
-        _ => unimplemented!(),
     }
 }
 
 fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> TokenStream2 {
-    let deserialized_fields = generate_field_deserialization(&fields);
+    let deserialized_fields = structs::named_field_deserialization(&fields);
+    quote! {
+        impl edn_rs::Deserialize for #struct_name {
+            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+                std::result::Result::Ok(Self {
+                    #deserialized_fields
+                })
+            }
+        }
+    }
+}
+
+fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> TokenStream2 {
+    let deserialized_fields = structs::unnamed_field_deserialization(&fields);
     quote! {
         impl edn_rs::Deserialize for #struct_name {
             fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
