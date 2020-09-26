@@ -8,4 +8,5 @@ fn tests() {
     t.compile_fail("tests/union_error_serialize.rs");
     t.compile_fail("tests/union_error_deserialize.rs");
     t.pass("tests/unit_struct.rs");
+    t.pass("tests/unnamed_struct_serialize.rs");
 }

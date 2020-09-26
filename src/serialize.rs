@@ -3,7 +3,7 @@ use crate::enums::get_enum_variants;
 use crate::structs::get_struct_fields;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, DataEnum, DataStruct, Error, Ident};
+use syn::{Data, DataEnum, DataStruct, Error, Fields, Ident};
 
 pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
     match data {
@@ -21,24 +21,54 @@ fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 
 
     match maybe_fields {
         Some(fields) => {
-            let it = fields.iter().map(|field| {
-                let name = &field.ident;
-                let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
-                quote! {
-                    format!("{} {}, ", #keyword, self.#name.serialize())
+            let it = fields.iter().enumerate().map(|(i, field)| {
+                let maybe_name = &field.ident;
+                match maybe_name {
+                    Some(name) => {
+                        let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
+
+                        quote! {
+                            format!("{} {}, ", #keyword, self.#name.serialize())
+                        }
+                    }
+                    None => {
+                        let i = syn::Index::from(i); // Eg: `0usize` to `0`
+                        quote! {
+                            format!("{} {}, ", #i, self.#i.serialize())
+                        }
+                    }
                 }
             });
 
-            quote! {
-                impl edn_rs::Serialize for #struct_name {
-                    fn serialize(self) -> std::string::String {
-                        let mut s = std::string::String::new();
-                        s.push_str("{ ");
-                        #(s.push_str(&#it);)*
-                        s.push_str("}");
-                        s
+            match data_struct.fields {
+                Fields::Named(_) => quote! {
+                    impl edn_rs::Serialize for #struct_name {
+                        fn serialize(self) -> std::string::String {
+                            let mut s = std::string::String::new();
+                            s.push_str("{ ");
+                            #(s.push_str(&#it);)*
+                            s.push_str("}");
+                            s
+                        }
+                    }
+                },
+                Fields::Unnamed(_) => {
+                    let str_struct_name = edn::camel_to_kebab(&quote! {#struct_name}.to_string());
+
+                    quote! {
+                        impl edn_rs::Serialize for #struct_name {
+                            fn serialize(self) -> std::string::String {
+                                let mut s = std::string::String::from(':');
+                                s.push_str(#str_struct_name);
+                                s.push_str("{ ");
+                                #(s.push_str(&#it);)*
+                                s.push_str("}");
+                                s
+                            }
+                        }
                     }
                 }
+                _ => unreachable!(),
             }
         }
         None => quote! {
