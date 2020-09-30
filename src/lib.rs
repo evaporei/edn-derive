@@ -7,7 +7,7 @@ mod enums;
 mod serialize;
 mod structs;
 
-#[proc_macro_derive(Serialize)]
+#[proc_macro_derive(Serialize, attributes(edn))]
 pub fn derive_serialize(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 

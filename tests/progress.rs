@@ -10,4 +10,5 @@ fn tests() {
     t.pass("tests/unit_struct.rs");
     t.pass("tests/unnamed_struct_serialize.rs");
     t.pass("tests/unnamed_struct_deserialize.rs");
+    t.pass("tests/skip_serializing_if_attribute.rs");
 }

@@ -1,9 +1,10 @@
 use crate::edn;
 use crate::enums::get_enum_variants;
-use proc_macro2::TokenStream as TokenStream2;
+use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::quote;
 use syn::{
     punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct, Error, Field, Fields, Ident,
+    Lit, Meta, NestedMeta, Path,
 };
 
 pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
@@ -30,8 +31,45 @@ fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -
         let name = &field.ident;
         let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
 
+        for attr in &field.attrs {
+            let meta = attr.parse_meta();
+            match meta {
+                Ok(Meta::List(list)) => {
+                    let path = list.path;
+                    if path.get_ident() == Some(&Ident::new("edn", Span::call_site())) {
+                        for nested in list.nested {
+                            match nested {
+                                NestedMeta::Meta(m) => match m {
+                                    Meta::NameValue(namevalue) => {
+                                        if namevalue.path.get_ident() == Some(&Ident::new("skip_serializing_if", Span::call_site())){
+                                            match namevalue.lit {
+                                                Lit::Str(litstr) => {
+                                                    let parsed: Path = litstr.parse().unwrap();
+
+                                                    return quote!{if #parsed(&self.#name) {
+                                                        None
+                                                    } else {
+                                                        Some(format!("{} {}, ", #keyword, self.#name.serialize()))
+                                                    }};
+                                                },
+                                                _ => {}
+                                            }
+
+                                        }
+                                    }
+                                    _ => {}
+                                }
+                                _ => {},
+                            }
+                        }
+                    }
+                },
+                _ => {},
+            }
+        }
+
         quote! {
-            format!("{} {}, ", #keyword, self.#name.serialize())
+            Some(format!("{} {}, ", #keyword, self.#name.serialize()))
         }
     });
 
@@ -40,7 +78,10 @@ fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -
             fn serialize(self) -> std::string::String {
                 let mut s = std::string::String::new();
                 s.push_str("{ ");
-                #(s.push_str(&#it);)*
+                #(match #it {
+                    Some(serialized) => s.push_str(&serialized),
+                    None => {}
+                };)*
                 s.push_str("}");
                 s
             }
