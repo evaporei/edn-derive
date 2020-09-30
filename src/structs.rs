@@ -1,17 +1,9 @@
 use crate::edn;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{punctuated::Punctuated, token::Comma, DataStruct, Field, Fields};
+use syn::{punctuated::Punctuated, token::Comma, Field};
 
-pub fn get_struct_fields(data_struct: &DataStruct) -> Option<&Punctuated<Field, Comma>> {
-    match data_struct.fields {
-        Fields::Named(ref fields) => Some(&fields.named),
-        Fields::Unit => None,
-        _ => unimplemented!(),
-    }
-}
-
-pub fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> TokenStream2 {
+pub fn named_field_deserialization(fields: &Punctuated<Field, Comma>) -> TokenStream2 {
     fields
         .iter()
         .map(|f| {
@@ -20,6 +12,20 @@ pub fn generate_field_deserialization(fields: &Punctuated<Field, Comma>) -> Toke
 
             quote! {
                 #name: edn_rs::from_edn(&edn[#keyword])?,
+            }
+        })
+        .collect()
+}
+
+pub fn unnamed_field_deserialization(fields: &Punctuated<Field, Comma>) -> TokenStream2 {
+    fields
+        .iter()
+        .enumerate()
+        .map(|(i, _)| {
+            let i = syn::Index::from(i); // Eg: `0usize` to `0`
+
+            quote! {
+                #i: edn_rs::from_edn(&edn[#i])?,
             }
         })
         .collect()

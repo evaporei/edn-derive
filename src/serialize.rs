@@ -1,9 +1,10 @@
 use crate::edn;
 use crate::enums::get_enum_variants;
-use crate::structs::get_struct_fields;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
-use syn::{Data, DataEnum, DataStruct, Error, Ident};
+use syn::{
+    punctuated::Punctuated, token::Comma, Data, DataEnum, DataStruct, Error, Field, Fields, Ident,
+};
 
 pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
     match data {
@@ -17,37 +18,67 @@ pub fn expand(type_name: &Ident, data: &Data) -> Result<TokenStream2, Error> {
 }
 
 fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 {
-    let maybe_fields = get_struct_fields(data_struct);
+    match data_struct.fields {
+        Fields::Named(ref fields) => expand_named_struct(struct_name, &fields.named),
+        Fields::Unnamed(ref fields) => expand_unnamed_struct(struct_name, &fields.unnamed),
+        Fields::Unit => expand_unit_struct(struct_name),
+    }
+}
 
-    match maybe_fields {
-        Some(fields) => {
-            let it = fields.iter().map(|field| {
-                let name = &field.ident;
-                let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
-                quote! {
-                    format!("{} {}, ", #keyword, self.#name.serialize())
-                }
-            });
+fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> TokenStream2 {
+    let it = fields.iter().map(|field| {
+        let name = &field.ident;
+        let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
 
-            quote! {
-                impl edn_rs::Serialize for #struct_name {
-                    fn serialize(self) -> std::string::String {
-                        let mut s = std::string::String::new();
-                        s.push_str("{ ");
-                        #(s.push_str(&#it);)*
-                        s.push_str("}");
-                        s
-                    }
-                }
+        quote! {
+            format!("{} {}, ", #keyword, self.#name.serialize())
+        }
+    });
+
+    quote! {
+        impl edn_rs::Serialize for #struct_name {
+            fn serialize(self) -> std::string::String {
+                let mut s = std::string::String::new();
+                s.push_str("{ ");
+                #(s.push_str(&#it);)*
+                s.push_str("}");
+                s
             }
         }
-        None => quote! {
-            impl edn_rs::Serialize for #struct_name {
-                fn serialize(self) -> std::string::String {
-                    String::from("nil")
-                }
+    }
+}
+
+fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> TokenStream2 {
+    let it = fields.iter().enumerate().map(|(i, _)| {
+        let i = syn::Index::from(i); // Eg: `0usize` to `0`
+        quote! {
+            format!("{} {}, ", #i, self.#i.serialize())
+        }
+    });
+
+    let str_struct_name = edn::camel_to_kebab(&quote! {#struct_name}.to_string());
+
+    quote! {
+        impl edn_rs::Serialize for #struct_name {
+            fn serialize(self) -> std::string::String {
+                let mut s = std::string::String::from(':');
+                s.push_str(#str_struct_name);
+                s.push_str("{ ");
+                #(s.push_str(&#it);)*
+                s.push_str("}");
+                s
             }
-        },
+        }
+    }
+}
+
+fn expand_unit_struct(struct_name: &Ident) -> TokenStream2 {
+    quote! {
+        impl edn_rs::Serialize for #struct_name {
+            fn serialize(self) -> std::string::String {
+                String::from("nil")
+            }
+        }
     }
 }
 

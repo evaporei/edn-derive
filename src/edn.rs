@@ -8,7 +8,7 @@ pub fn field_to_keyword(field_name: &str) -> String {
     keyword.to_lowercase()
 }
 
-fn camel_to_kebab(s: &str) -> String {
+pub fn camel_to_kebab(s: &str) -> String {
     s.chars()
         .enumerate()
         .fold(String::new(), |mut kebab, (i, c)| {
