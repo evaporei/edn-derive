@@ -2,7 +2,7 @@
 
 Edn derive procedural macros for (De)Serialization.
 
-**This library still is `pre-alpha`**.
+**This library still is `beta` but very close to stable**.
 
 ## Usage
 
