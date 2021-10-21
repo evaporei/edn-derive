@@ -3,7 +3,7 @@ version: 2
 jobs:
   test:
     docker:
-      - image: rust
+      - image: cimg/rust:1.55
     steps:
       - checkout
       - run:
