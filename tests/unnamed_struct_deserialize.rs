@@ -14,7 +14,7 @@ enum Kind {
 pub struct Person(String, usize, Kind);
 
 fn main() -> Result<(), EdnError> {
-    let edn_person = ":person{ 0 \"joana\", 1 290000, 2 :kind/pirate, }";
+    let edn_person = "{ 0 \"joana\", 1 290000, 2 :kind/pirate, }";
 
     let person: Person = edn_rs::from_str(edn_person)?;
 

@@ -56,14 +56,10 @@ fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>)
         }
     });
 
-    let str_struct_name = edn::camel_to_kebab(&quote! {#struct_name}.to_string());
-
     quote! {
         impl edn_rs::Serialize for #struct_name {
             fn serialize(self) -> std::string::String {
-                let mut s = std::string::String::from(':');
-                s.push_str(#str_struct_name);
-                s.push_str("{ ");
+                let mut s = std::string::String::from("{ ");
                 #(s.push_str(&#it);)*
                 s.push_str("}");
                 s
