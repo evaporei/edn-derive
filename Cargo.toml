@@ -1,13 +1,13 @@
 [package]
 name = "edn-derive"
 version = "0.6.0"
-authors = ["Otavio Pace <otaviopp8@gmail.com>", "Julia Boeira <julia.boeira@nubank.com.br>"]
+authors = ["Eva Pace <eba.pachi@gmail.com>", "Julia Boeira <julia.boeira@nubank.com.br>"]
 description = "Edn (De)Serialization derive macros"
 edition = "2021"
 readme = "README.md"
 keywords = ["edn"]
 documentation = "https://docs.rs/edn-derive/"
-repository = "https://github.com/otaviopace/edn-derive"
+repository = "https://github.com/edn-rs/edn-derive"
 license = "LGPL-3.0"
 autotests = false
 
