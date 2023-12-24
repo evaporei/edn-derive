@@ -3,7 +3,7 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::quote;
 use syn::{punctuated::Punctuated, token::Comma, DataEnum, Ident, Variant};
 
-pub fn get_enum_variants(data_enum: &DataEnum) -> &Punctuated<Variant, Comma> {
+pub const fn get_enum_variants(data_enum: &DataEnum) -> &Punctuated<Variant, Comma> {
     &data_enum.variants
 }
 

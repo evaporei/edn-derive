@@ -26,7 +26,7 @@ fn expand_struct(struct_name: &Ident, data_struct: &DataStruct) -> TokenStream2 
 }
 
 fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> TokenStream2 {
-    let deserialized_fields = structs::named_field_deserialization(&fields);
+    let deserialized_fields = structs::named_field_deserialization(fields);
     quote! {
         impl edn_rs::Deserialize for #struct_name {
             fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
@@ -39,7 +39,7 @@ fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -
 }
 
 fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -> TokenStream2 {
-    let deserialized_fields = structs::unnamed_field_deserialization(&fields);
+    let deserialized_fields = structs::unnamed_field_deserialization(fields);
     quote! {
         impl edn_rs::Deserialize for #struct_name {
             fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
@@ -70,7 +70,7 @@ fn expand_unit_struct(struct_name: &Ident) -> TokenStream2 {
 fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
     let enum_variants = get_enum_variants(data_enum);
 
-    let deserialized_variants = generate_variant_deserialization(enum_name, &enum_variants);
+    let deserialized_variants = generate_variant_deserialization(enum_name, enum_variants);
 
     quote! {
         impl edn_rs::Deserialize for #enum_name {
