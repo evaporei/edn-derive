@@ -3,7 +3,7 @@ pub fn field_to_keyword(field_name: &str) -> String {
     let inner = field_name
         .replace("___", "/")
         .replace("__", ".")
-        .replace("_", "-");
+        .replace('_', "-");
     keyword.push_str(&inner);
     keyword.to_lowercase()
 }
