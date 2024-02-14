@@ -15,7 +15,7 @@ fn main() {
 
     assert_eq!(
         edn_rs::to_string(person),
-        ":person{ 0 \"joana\", 1 290000, 2 :kind/chill, }"
+        "{ 0 \"joana\", 1 290000, 2 :kind/chill, }"
     );
 }
 
