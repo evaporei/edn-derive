@@ -14,8 +14,7 @@ fn main() {
     let person = Person("joana".to_string(), 290000, Kind::Chill);
 
     assert_eq!(
-        edn_rs::to_string(person),
+        edn_rs::to_string(&person),
         "{ 0 \"joana\", 1 290000, 2 :kind/chill, }"
     );
 }
-
