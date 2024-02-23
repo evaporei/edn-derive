@@ -16,10 +16,8 @@ fn main() -> Result<(), EdnError> {
     let nothing_err: Result<Nothing, EdnError> = edn_rs::from_str(":a-key");
 
     assert_eq!(
-        nothing_err,
-        Err(EdnError::Deserialize(
-            "couldn't convert :a-key into an unit struct".to_string()
-        ))
+        format!("{nothing_err:?}"),
+        "Err(EdnError { code: CustomError(\"EdnDerive: couldn't convert :a-key into an unit struct\"), line: None, column: None, ptr: None })"
     );
 
     Ok(())

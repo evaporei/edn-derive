@@ -57,10 +57,16 @@ fn expand_unit_struct(struct_name: &Ident) -> TokenStream2 {
             fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
                 match edn {
                     edn_rs::Edn::Nil => std::result::Result::Ok(Self),
-                    _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
-                                "couldn't convert {} into an unit struct",
+                    _ => std::result::Result::Err(
+                        edn_rs::EdnError {
+                            code: edn_rs::edn::error::Code::CustomError(format!(
+                                "EdnDerive: couldn't convert {} into an unit struct",
                                 edn
-                    )))
+                            )),
+                            line: None,
+                            column: None,
+                            ptr: None,
+                        })
                 }
             }
         }
@@ -78,22 +84,40 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
                 match edn {
                     edn_rs::Edn::Key(k) => match &k[..] {
                         #deserialized_variants
-                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
-                                "couldn't convert {} keyword into enum",
-                                k
-                        )))
+                        _ => std::result::Result::Err(
+                            edn_rs::EdnError {
+                                code: edn_rs::edn::error::Code::CustomError(format!(
+                                    "EdnDerive: couldn't convert {} keyword into enum",
+                                    edn
+                                )),
+                                line: None,
+                                column: None,
+                                ptr: None,
+                            })
                     },
                     edn_rs::Edn::Str(s) => match &s[..] {
                         #deserialized_variants
-                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
-                                "couldn't convert {} string into enum",
-                                s
-                        ))),
+                        _ => std::result::Result::Err(
+                            edn_rs::EdnError {
+                                code: edn_rs::edn::error::Code::CustomError(format!(
+                                    "EdnDerive: couldn't convert {} string into enum",
+                                    edn
+                                )),
+                                line: None,
+                                column: None,
+                                ptr: None,
+                            })
                     },
-                    _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
-                                "couldn't convert {} into enum",
+                    _ => std::result::Result::Err(
+                        edn_rs::EdnError {
+                            code: edn_rs::edn::error::Code::CustomError(format!(
+                                "EdnDerive: couldn't convert {} into enum",
                                 edn
-                    ))),
+                            )),
+                            line: None,
+                            column: None,
+                            ptr: None,
+                        })
                 }
             }
         }
