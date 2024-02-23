@@ -23,7 +23,7 @@ path = "tests/progress.rs"
 syn = "2.0"
 quote = "1.0"
 proc-macro2 = "1.0"
-edn-rs = { git = "https://github.com/edn-rs/edn-rs.git" } # TODO lock in version once stable
+edn-rs = { git = "https://github.com/Grinkers/edn-rs.git", branch = "parse" } # TEMPORARY
 
 [dev-dependencies]
 trybuild = { version = "1.0", features = ["diff"] }
