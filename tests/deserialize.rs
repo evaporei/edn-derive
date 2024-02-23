@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use edn_derive::Deserialize;
 use edn_rs::EdnError;
 
