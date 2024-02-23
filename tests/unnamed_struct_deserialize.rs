@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use edn_derive::Deserialize;
 use edn_rs::EdnError;
 
@@ -18,10 +20,7 @@ fn main() -> Result<(), EdnError> {
 
     let person: Person = edn_rs::from_str(edn_person)?;
 
-    assert_eq!(
-        person,
-        Person("joana".to_string(), 290000, Kind::Pirate)
-    );
+    assert_eq!(person, Person("joana".to_string(), 290000, Kind::Pirate));
 
     Ok(())
 }
