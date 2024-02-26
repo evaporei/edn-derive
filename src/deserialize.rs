@@ -63,9 +63,9 @@ fn expand_unit_struct(struct_name: &Ident) -> TokenStream2 {
                                 "EdnDerive: couldn't convert {} into an unit struct",
                                 edn
                             )),
-                            line: None,
-                            column: None,
-                            ptr: None,
+                            line: core::option::Option::None,
+                            column: core::option::Option::None,
+                            ptr: core::option::Option::None,
                         })
                 }
             }
@@ -90,9 +90,9 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
                                     "EdnDerive: couldn't convert {} keyword into enum",
                                     edn
                                 )),
-                                line: None,
-                                column: None,
-                                ptr: None,
+                                line: core::option::Option::None,
+                                column: core::option::Option::None,
+                                ptr: core::option::Option::None,
                             })
                     },
                     edn_rs::Edn::Str(s) => match &s[..] {
@@ -103,9 +103,9 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
                                     "EdnDerive: couldn't convert {} string into enum",
                                     edn
                                 )),
-                                line: None,
-                                column: None,
-                                ptr: None,
+                                line: core::option::Option::None,
+                                column: core::option::Option::None,
+                                ptr: core::option::Option::None,
                             })
                     },
                     _ => std::result::Result::Err(
@@ -114,9 +114,9 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
                                 "EdnDerive: couldn't convert {} into enum",
                                 edn
                             )),
-                            line: None,
-                            column: None,
-                            ptr: None,
+                            line: core::option::Option::None,
+                            column: core::option::Option::None,
+                            ptr: core::option::Option::None,
                         })
                 }
             }
