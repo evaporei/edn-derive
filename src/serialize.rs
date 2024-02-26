@@ -31,14 +31,14 @@ fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -
         let keyword = edn::field_to_keyword(&quote! {#name}.to_string());
 
         quote! {
-            format!("{} {}, ", #keyword, self.#name.serialize())
+            alloc::format!("{} {}, ", #keyword, self.#name.serialize())
         }
     });
 
     quote! {
         impl edn_rs::Serialize for #struct_name {
-            fn serialize(&self) -> std::string::String {
-                let mut s = std::string::String::new();
+            fn serialize(&self) -> alloc::string::String {
+                let mut s = alloc::string::String::new();
                 s.push_str("{ ");
                 #(s.push_str(&#it);)*
                 s.push_str("}");
@@ -52,14 +52,14 @@ fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>)
     let it = fields.iter().enumerate().map(|(i, _)| {
         let i = syn::Index::from(i); // Eg: `0usize` to `0`
         quote! {
-            format!("{} {}, ", #i, self.#i.serialize())
+            alloc::format!("{} {}, ", #i, self.#i.serialize())
         }
     });
 
     quote! {
         impl edn_rs::Serialize for #struct_name {
-            fn serialize(&self) -> std::string::String {
-                let mut s = std::string::String::from("{ ");
+            fn serialize(&self) -> alloc::string::String {
+                let mut s = alloc::string::String::from("{ ");
                 #(s.push_str(&#it);)*
                 s.push_str("}");
                 s
@@ -71,8 +71,8 @@ fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>)
 fn expand_unit_struct(struct_name: &Ident) -> TokenStream2 {
     quote! {
         impl edn_rs::Serialize for #struct_name {
-            fn serialize(&self) -> std::string::String {
-                String::from("nil")
+            fn serialize(&self) -> alloc::string::String {
+                alloc::string::String::from("nil")
             }
         }
     }
@@ -94,7 +94,7 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
 
     quote! {
         impl edn_rs::Serialize for #enum_name {
-            fn serialize(&self) -> std::string::String {
+            fn serialize(&self) -> alloc::string::String {
                 match self {
                     #(#it)*
                 }

@@ -29,8 +29,8 @@ fn expand_named_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>) -
     let deserialized_fields = structs::named_field_deserialization(fields);
     quote! {
         impl edn_rs::Deserialize for #struct_name {
-            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
-                std::result::Result::Ok(Self {
+            fn deserialize(edn: &edn_rs::Edn) -> core::result::Result<Self, edn_rs::EdnError> {
+                core::result::Result::Ok(Self {
                     #deserialized_fields
                 })
             }
@@ -42,8 +42,8 @@ fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>)
     let deserialized_fields = structs::unnamed_field_deserialization(fields);
     quote! {
         impl edn_rs::Deserialize for #struct_name {
-            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
-                std::result::Result::Ok(Self {
+            fn deserialize(edn: &edn_rs::Edn) -> core::result::Result<Self, edn_rs::EdnError> {
+                core::result::Result::Ok(Self {
                     #deserialized_fields
                 })
             }
@@ -54,10 +54,10 @@ fn expand_unnamed_struct(struct_name: &Ident, fields: &Punctuated<Field, Comma>)
 fn expand_unit_struct(struct_name: &Ident) -> TokenStream2 {
     quote! {
         impl edn_rs::Deserialize for #struct_name {
-            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+            fn deserialize(edn: &edn_rs::Edn) -> core::result::Result<Self, edn_rs::EdnError> {
                 match edn {
-                    edn_rs::Edn::Nil => std::result::Result::Ok(Self),
-                    _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
+                    edn_rs::Edn::Nil => core::result::Result::Ok(Self),
+                    _ => core::result::Result::Err(edn_rs::EdnError::Deserialize(alloc::format!(
                                 "couldn't convert {} into an unit struct",
                                 edn
                     )))
@@ -74,23 +74,23 @@ fn expand_enum(enum_name: &Ident, data_enum: &DataEnum) -> TokenStream2 {
 
     quote! {
         impl edn_rs::Deserialize for #enum_name {
-            fn deserialize(edn: &edn_rs::Edn) -> std::result::Result<Self, edn_rs::EdnError> {
+            fn deserialize(edn: &edn_rs::Edn) -> core::result::Result<Self, edn_rs::EdnError> {
                 match edn {
                     edn_rs::Edn::Key(k) => match &k[..] {
                         #deserialized_variants
-                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
+                        _ => core::result::Result::Err(edn_rs::EdnError::Deserialize(alloc::format!(
                                 "couldn't convert {} keyword into enum",
                                 k
                         )))
                     },
                     edn_rs::Edn::Str(s) => match &s[..] {
                         #deserialized_variants
-                        _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
+                        _ => core::result::Result::Err(edn_rs::EdnError::Deserialize(alloc::format!(
                                 "couldn't convert {} string into enum",
                                 s
                         ))),
                     },
-                    _ => std::result::Result::Err(edn_rs::EdnError::Deserialize(format!(
+                    _ => core::result::Result::Err(edn_rs::EdnError::Deserialize(alloc::format!(
                                 "couldn't convert {} into enum",
                                 edn
                     ))),
