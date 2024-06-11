@@ -23,7 +23,7 @@ fn main() {
         kind: Kind::Chill,
     };
     assert_eq!(
-        edn_rs::to_string(&person),
+        edn_rs::to_string(person),
         "{ :name \"joana\", :age 290000, :kind :kind/chill, }"
     );
 }

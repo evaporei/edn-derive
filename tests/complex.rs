@@ -28,7 +28,7 @@ fn main() -> Result<(), EdnError> {
     let account_edn_str =
         "{ :crux.db/id \"123\", :account/amount 42, :account-type :account-type/premium-plus, }";
 
-    assert_eq!(edn_rs::to_string(&account), account_edn_str);
+    assert_eq!(edn_rs::to_string(account), account_edn_str);
 
     let account: Account = edn_rs::from_str(account_edn_str)?;
 

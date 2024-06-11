@@ -10,7 +10,7 @@ struct Point {
 fn main() -> Result<(), EdnError> {
     let point = Point { x: 1, y: 2 };
 
-    let serialized = edn_rs::to_string(&point);
+    let serialized = edn_rs::to_string(point.clone());
     let deserialized: Point = edn_rs::from_str(&serialized)?;
 
     assert_eq!(point, deserialized);

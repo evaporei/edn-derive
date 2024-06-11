@@ -20,14 +20,14 @@ name = "tests"
 path = "tests/progress.rs"
 
 [dependencies]
-syn = "2.0"
+syn = "1.0"
 quote = "1.0"
 proc-macro2 = "1.0"
 edn-rs = { git = "https://github.com/edn-rs/edn-rs.git" } # TODO lock in version once stable
 
 [dev-dependencies]
 trybuild = { version = "1.0", features = ["diff"] }
-criterion = "0.5"
+criterion = "0.3"
 
 [dev-dependencies.cargo-husky]
 version = "1"
