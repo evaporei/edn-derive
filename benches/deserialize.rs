@@ -9,8 +9,8 @@ mod edn {
     use edn_rs;
 
     pub fn criterion_benchmark(c: &mut Criterion) {
-        c.bench_function("to_str", |b| b.iter(|| edn_rs::to_string(val())));
-        let val_str = edn_rs::to_string(val());
+        c.bench_function("to_str", |b| b.iter(|| edn_rs::to_string(&val())));
+        let val_str = edn_rs::to_string(&val());
         c.bench_function("from_str", |b| {
             b.iter(|| edn_rs::from_str::<ValEdn>(&val_str))
         });
