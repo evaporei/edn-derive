@@ -1,3 +1,7 @@
+# DEPRECATION NOTICE
+
+This crate and its main crate, [edn-rs](https://github.com/edn-rs/edn-rs), will not have any further work done.
+
 # edn-derive
 
 Edn derive procedural macros for (De)Serialization.
@@ -8,7 +12,7 @@ Edn derive procedural macros for (De)Serialization.
 
 ```toml
 [dependencies]
-edn-derive = "0.5.0"
+edn-derive = "0.7.0"
 ```
 
 ## Example

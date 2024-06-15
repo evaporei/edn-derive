@@ -1,6 +1,6 @@
 [package]
 name = "edn-derive"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Eva Pace <eba.pachi@gmail.com>", "Julia Boeira <julia.boeira@nubank.com.br>"]
 description = "Edn (De)Serialization derive macros"
 edition = "2021"
@@ -23,7 +23,7 @@ path = "tests/progress.rs"
 syn = "2.0"
 quote = "1.0"
 proc-macro2 = "1.0"
-edn-rs = { git = "https://github.com/edn-rs/edn-rs.git" } # TODO lock in version once stable
+edn-rs = "0.18"
 
 [dev-dependencies]
 trybuild = { version = "1.0", features = ["diff"] }
